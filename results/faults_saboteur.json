@@ -1,0 +1,9 @@
+{
+  "game": "saboteur",
+  "matches_scheduled": 1000,
+  "matches_completed": 1000,
+  "completion_pct": 100.0,
+  "matches_with_faults": 1000,
+  "total_faults_contained": 3817,
+  "wall_s": 43.91
+}

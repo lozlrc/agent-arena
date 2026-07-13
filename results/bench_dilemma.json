@@ -1,0 +1,10 @@
+{
+  "game": "dilemma",
+  "matches": 10000,
+  "workers": 10,
+  "serial_s": 14.318,
+  "parallel_s": 2.369,
+  "serial_gps": 698.4,
+  "parallel_gps": 4221.5,
+  "speedup": 6.04
+}

@@ -1,0 +1,10 @@
+{
+  "game": "saboteur",
+  "matches": 10000,
+  "workers": 10,
+  "serial_s": 3.27,
+  "parallel_s": 0.819,
+  "serial_gps": 3058.4,
+  "parallel_gps": 12211.0,
+  "speedup": 3.99
+}
