@@ -10,4 +10,5 @@ COPY results/arena.db ./results/arena.db
 ENV ARENA_DB=/app/results/arena.db
 
 EXPOSE 8080
-CMD ["uvicorn", "arena.web.app:app", "--host", "0.0.0.0", "--port", "8080"]
+# PORT is set by Render; Fly uses the 8080 default (fly.toml internal_port)
+CMD uvicorn arena.web.app:app --host 0.0.0.0 --port ${PORT:-8080}

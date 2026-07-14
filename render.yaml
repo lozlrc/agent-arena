@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: agent-arena
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
