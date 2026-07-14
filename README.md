@@ -5,6 +5,12 @@ seeded simulation, fault-isolated agent execution, reproducible
 tournaments, automated result collection, a live leaderboard, and a
 public evaluation API for submitted agents.
 
+![Agent Arena leaderboard: per-game stat cards and TrueSkill-style rankings for Saboteur and Prisoner's Dilemma](docs/leaderboard.png)
+
+*The web UI: measured platform stats and per-game leaderboards. Run it
+with `uv run uvicorn arena.web.app:app --port 8090` — no accounts, no
+cloud.*
+
 Two games ship, behind one pluggable `GameDef` registry
 ([arena/games.py](arena/games.py) — adding a game is one entry):
 
