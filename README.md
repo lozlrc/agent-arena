@@ -5,6 +5,10 @@ seeded simulation, fault-isolated agent execution, reproducible
 tournaments, automated result collection, a live leaderboard, and a
 public evaluation API for submitted agents.
 
+**Live demo:** https://agent-arena-r172.onrender.com — leaderboards,
+match replays, and the `POST /api/evaluate` submission endpoint. (Free
+tier: the first request after idle takes ~50 s to wake the instance.)
+
 ![Agent Arena leaderboard: per-game stat cards and TrueSkill-style rankings for Saboteur and Prisoner's Dilemma](docs/leaderboard.png)
 
 *The web UI: measured platform stats and per-game leaderboards. Run it
