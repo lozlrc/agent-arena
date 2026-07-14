@@ -35,6 +35,10 @@ strategies matter. Payoffs 3/3, 1/1, 5/0. Exercises **cooperation**,
 PD matches are ~3× more agent calls than Saboteur (2 players × up to
 200 rounds), hence the lower games/s at similar moves/s. The exact
 JSON for every number above is committed under [results/](results/).
+The committed results DB keeps ratings, stats, and the 400 sampled
+replay transcripts (summary rows for all 70,000 matches are pruned for
+size); tournaments are seeded, so `arena.cli tournament` regenerates
+the full database bit-for-bit.
 
 ## Mechanisms
 
