@@ -120,8 +120,8 @@ def api_match(match_id: int):
 def _eval_worker(out: mp.Queue, code: str, name: str,
                  n_matches: int, seed: int, game: str) -> None:
     """Runs in a disposable child process — the only place submitted
-    code executes. Main thread of the child, so SIGALRM preemption in
-    the referee sandbox works."""
+    code executes. Main thread of the child, so the referee sandbox's
+    signal-based per-move preemption works."""
     try:
         out.put(("ok", evaluate_code(code, name, n_matches, seed, game)))
     except Exception as exc:  # noqa: BLE001 — untrusted code

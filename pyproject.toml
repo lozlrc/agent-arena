@@ -10,6 +10,12 @@ dependencies = [
     "uvicorn[standard]>=0.51.0",
 ]
 
+[project.optional-dependencies]
+# LLM agents for the dilemma_comms research variant. Install with
+# `uv sync --extra llm`. Kept optional so the core platform and the full
+# test suite run with no network dependency.
+llm = ["openai>=1.40.0"]
+
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",

@@ -8,7 +8,7 @@ Untrusted code goes through three layers before and during execution:
   2. Restricted execution environment: the code is exec'd with an
      allowlisted __builtins__ and a guarded __import__.
   3. Process isolation (see web/app.py): compilation + matches happen
-     in a disposable worker process — per-move SIGALRM preemption via
+     in a disposable worker process — per-move CPU-time preemption via
      the referee sandbox, and the parent hard-kills the whole worker
      on wall-clock overrun. The web process never runs submitted code.
 
@@ -104,8 +104,8 @@ def evaluate_code(code: str, name: str, n_matches: int, seed: int,
     """Run the submitted agent against the game's baseline pool.
 
     Deterministic in (code, name, n_matches, seed, game). Designed to
-    run in a worker process (SIGALRM sandboxing needs a main thread;
-    the parent enforces a wall-clock kill on top).
+    run in a worker process (signal-based sandboxing needs a main
+    thread; the parent enforces a wall-clock kill on top).
     """
     gd = GAMES[game]
     cls = load_agent(code, name, game)

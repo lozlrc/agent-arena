@@ -160,11 +160,67 @@ Two honest quirks, both deliberate talking points:
 
 Both gaps are exactly what submitted agents are meant to attack.
 
+## LLM agents & natural-language deception (`dilemma_comms`)
+
+A research variant adds a **free-text "cheap talk" channel** to iterated
+Prisoner's Dilemma: before each round's move, both players exchange one
+natural-language message the other reads before deciding. This is where
+**deception** becomes observable — an agent can *say* "let's cooperate"
+and then defect — so the platform measures it: `promise_breaks`
+([arena/game/dilemma.py](arena/game/dilemma.py)) flags rounds where an
+agent's message promised cooperation but it then intended to defect
+(noise is undone so a promise kept-but-noise-flipped isn't counted as a
+lie), and the leaderboard reports a per-agent **`betrayal_pct`**. Two
+deterministic mock agents (`honest_coop`, `deceiver`) anchor the metric
+(0% and 100%).
+
+LLM agents plug into the existing `observation → action` interface via
+an adapter that serializes the game state into a prompt, calls the
+model, and parses the reply
+([arena/agents/llm_pd.py](arena/agents/llm_pd.py), OpenAI). Three
+things differ from scripted agents, by design:
+
+- **LLM agents are trusted, run from the CLI/registry — never through
+  `/api/evaluate`.** That submission path's AST sandbox blocks imports
+  and network on purpose, so an LLM agent can't run there and no public
+  endpoint ever makes billed API calls. You supply the key via env.
+- **Timing switches to wall-clock.** The per-move limit is CPU-time for
+  scripted agents (deterministic) but wall-clock (30 s default) for
+  I/O-bound LLM moves; a hung/slow/failed call is contained as a fault
+  and replaced by a fallback action, so one flaky API call never
+  crashes a match.
+- **Reproducibility becomes statistical.** LLM sampling isn't
+  byte-reproducible (even at temperature 0), so exact transcript hashes
+  no longer hold; the *environment* (round count, 2% noise, ordering)
+  stays seeded, and you run N matches and report distributions.
+
+```bash
+uv sync --extra llm      # installs the openai SDK (optional; core stays slim)
+
+# deterministic sanity check — no key, no cost:
+uv run python -m arena.research series --a deceiver --b honest_coop --matches 20
+#   deceiver    avg_score=43.0 coop=1.9% betrayal=100.0% ...
+#   honest_coop avg_score= 0.5 coop=100.0% betrayal=0.0% ...
+
+# LLM vs baseline (needs OPENAI_API_KEY):
+OPENAI_API_KEY=sk-... OPENAI_MODEL=gpt-4o-mini \
+  uv run python -m arena.research series --a llm_openai --b tit_for_tat --matches 10
+
+# LLM vs LLM, different models head-to-head:
+OPENAI_API_KEY=sk-... uv run python -m arena.research series \
+  --a llm_openai --a-model gpt-4o --b llm_openai --b-model gpt-4o-mini --matches 10
+```
+
+The `--out <file>` flag saves full transcripts (messages + moves) to
+`results/` for analysis. The keyword-based promise detector is a
+first-pass signal, documented as such — swap in a stronger classifier
+for publication-grade deception measurement.
+
 ## Running
 
 ```bash
 uv sync
-uv run pytest                                            # 24 tests: engines, isolation, API
+uv run pytest                                            # 34 tests: engines, isolation, API, comms
 uv run python -m arena.cli [--game dilemma] bench       --matches 10000
 uv run python -m arena.cli [--game dilemma] verify      --matches 5000
 uv run python -m arena.cli [--game dilemma] tournament  --matches 50000
@@ -172,6 +228,7 @@ uv run python -m arena.cli faults --matches 1000         # saboteur pool
 uv run uvicorn arena.web.app:app --port 8090             # leaderboard UI + API
 ```
 
-Deploy: `fly launch --copy-config --now` (Dockerfile bundles the code
-and the results database; ranked leaderboards are read-only, the
-evaluation API is live).
+Deployed on Render's free tier (Docker; the image bundles the code and
+the results DB; ranked leaderboards are read-only, the evaluation API
+is live). `render.yaml` + `Dockerfile` are the blueprint; `fly.toml` is
+kept for a Fly alternative.
