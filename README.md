@@ -94,9 +94,12 @@ curl -s https://<host>/api/evaluate -H 'Content-Type: application/json' -d '{
 #     "faults": 0, "avg_move_ms": 0.001, "eval_hash": "113b9a92...", ...}
 ```
 
-Evaluations are deterministic — same `(code, seed, game)` returns the
-same `eval_hash` — and evaluated agents appear on the live submissions
-leaderboard (`GET /api/submissions`). Submitted code is defended in
+Evaluations are deterministic — an identical request (`code`, `name`,
+`matches`, `seed`, `game`) returns the same `eval_hash` on any machine
+(verified: local and the deployed container produce byte-identical
+hashes). The agent name is part of the recorded transcript, so
+renaming an agent changes its hash. Evaluated agents appear on the
+live submissions leaderboard (`GET /api/submissions`). Submitted code is defended in
 depth: AST screening rejects imports outside a small stdlib allowlist
 (math, random, itertools, collections, statistics, functools, heapq,
 bisect), dunder access, and dangerous builtins
