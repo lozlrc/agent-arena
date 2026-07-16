@@ -33,6 +33,7 @@ imports and network.)
 from __future__ import annotations
 
 import signal
+import threading
 import time
 from typing import Any, Callable
 
@@ -89,8 +90,17 @@ class GuardedAgent:
         if self.downgraded:
             return fallback(), "downgraded"
 
-        old = signal.signal(self._sig, _alarm_handler)
-        signal.setitimer(self._itimer, self.timeout_s)
+        # Signal-based preemption only works on the main thread. Scripted
+        # games run in worker *processes* (each on its main thread), so they
+        # keep it. The concurrent runner for I/O-bound LLM agents uses worker
+        # *threads*: there we skip the timer and rely on the agent's own
+        # request timeout (the OpenAI client's `timeout`, or a simulated
+        # agent's bounded sleep). Exception containment and validation apply
+        # in every case.
+        use_timer = threading.current_thread() is threading.main_thread()
+        if use_timer:
+            old = signal.signal(self._sig, _alarm_handler)
+            signal.setitimer(self._itimer, self.timeout_s)
         start = time.perf_counter()
         try:
             action = getattr(self.agent, method)(obs)
@@ -101,8 +111,9 @@ class GuardedAgent:
             self.faults += 1
             return fallback(), f"crash:{type(exc).__name__}"
         finally:
-            signal.setitimer(self._itimer, 0)
-            signal.signal(self._sig, old)
+            if use_timer:
+                signal.setitimer(self._itimer, 0)
+                signal.signal(self._sig, old)
             self.time_spent += time.perf_counter() - start
 
         if not validate(action):

@@ -1,0 +1,15 @@
+{
+  "game": "dilemma_comms",
+  "matches": 4,
+  "concurrency": 4,
+  "mean_latency_s": 0.01,
+  "error_rate": 0.0,
+  "serial_baseline_matches": 1,
+  "serial_matches_per_min": 28.1,
+  "concurrent_matches_per_min": 111.8,
+  "concurrency_speedup": 4.0,
+  "total_agent_calls": 128,
+  "calls_per_s": 59.6,
+  "simulated_api_errors_contained": 0,
+  "wall_s": 2.15
+}

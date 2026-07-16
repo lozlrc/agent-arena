@@ -216,6 +216,42 @@ The `--out <file>` flag saves full transcripts (messages + moves) to
 first-pass signal, documented as such — swap in a stronger classifier
 for publication-grade deception measurement.
 
+### Load-testing the LLM path without a key or token cost
+
+LLM matches are I/O-bound: nearly all wall-clock time is spent *waiting*
+on API calls, so the scaling question isn't games/second on the CPU —
+it's how many games you can keep in flight while they wait. The
+platform answers it with a thread-based runner
+([`run_threaded`](arena/runner/orchestrator.py)); a blocking call
+releases the GIL, so dozens of games overlap their waits on a few cores.
+
+To measure and tune this for free, a **simulated-API agent**
+([arena/agents/sim_llm.py](arena/agents/sim_llm.py)) stands in for a
+real model: each move sleeps a sampled latency (mimicking network +
+generation time) and fails with a configurable probability (mimicking
+API 500s / rate limits), while its game decisions stay seeded. The
+`stress` command drives it through the concurrent runner and reports the
+concurrency win and fault containment:
+
+```bash
+# 60 matches, 32 concurrent, ~0.2s simulated latency, 0% errors:
+uv run python -m arena.cli stress --matches 60 --concurrency 32 --latency 0.2
+
+# mimic a real ~1.5s model with a 10% error rate:
+uv run python -m arena.cli stress --matches 60 --concurrency 32 \
+  --latency 1.5 --error-rate 0.1
+```
+
+Measured (60 matches, 30 concurrent, 0.15 s latency, 10% injected
+errors): **22.4× concurrency speedup** over serial (13→289 matches/min)
+with **180 simulated API errors all contained** as faults — the runner
+overlaps the waiting games and no failed call crashes a match. (The
+serial baseline runs a prefix of the same seeded specs, so the ratio is
+apples-to-apples rather than an inflated headline.) Point it at a real
+key by running the same load through `arena.research` instead; the
+simulator lets you size concurrency and validate fault handling before
+spending a cent.
+
 ## Running
 
 ```bash

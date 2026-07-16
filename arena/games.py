@@ -14,6 +14,7 @@ from typing import Any, Callable
 
 from arena.agents.baselines import RANKED, REGISTRY, BaseAgent
 from arena.agents.llm_pd import OpenAIPDAgent
+from arena.agents.sim_llm import SimDeceiver, SimHonest, SimulatedLLMAgent
 from arena.game import dilemma
 from arena.game.saboteur import SABOTEUR, MatchResult
 from arena.runner.match import run_match
@@ -156,8 +157,18 @@ def _pd_comms_tally_final(acc: dict) -> dict:
             "betrayal_pct": round(100 * acc["broken"] / max(1, acc["promises"]), 1)}
 
 
-_PD_COMMS_REGISTRY = {**dilemma.PD_COMMS_REGISTRY,
-                      OpenAIPDAgent.name: OpenAIPDAgent}
+# Comms registry = cheap-talk baselines (silent scripted agents + the two
+# deterministic mock talkers) plus the trusted LLM agents: the real OpenAI
+# adapter and the latency/error-simulating stand-in used for stress tests.
+# The simulated/LLM agents stay out of the *ranked* pool so ordinary
+# tournaments don't sleep or spend tokens.
+_PD_COMMS_REGISTRY = {
+    **dilemma.PD_COMMS_REGISTRY,
+    OpenAIPDAgent.name: OpenAIPDAgent,
+    SimulatedLLMAgent.name: SimulatedLLMAgent,
+    SimDeceiver.name: SimDeceiver,
+    SimHonest.name: SimHonest,
+}
 
 
 GAMES: dict[str, GameDef] = {
