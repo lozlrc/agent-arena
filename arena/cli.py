@@ -188,8 +188,11 @@ def cmd_stress(args) -> None:
 
 def _write_named(args, game: str, kind: str, out: dict) -> None:
     print(json.dumps(out, indent=2))
-    RESULTS.mkdir(exist_ok=True)
-    (RESULTS / f"{kind}_{game}.json").write_text(json.dumps(out, indent=2))
+    # write the JSON artifact next to the db so a test using a temp db
+    # never clobbers the committed results/ files
+    out_dir = Path(args.db).parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{kind}_{game}.json").write_text(json.dumps(out, indent=2))
     con = db.connect(args.db)
     db.set_stat(con, f"{game}:{kind}", out)
 

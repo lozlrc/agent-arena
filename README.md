@@ -243,7 +243,7 @@ uv run python -m arena.cli stress --matches 60 --concurrency 32 \
 ```
 
 Measured (60 matches, 30 concurrent, 0.15 s latency, 10% injected
-errors): **22.4× concurrency speedup** over serial (13→289 matches/min)
+errors): **22.5× concurrency speedup** over serial (13→289 matches/min)
 with **180 simulated API errors all contained** as faults — the runner
 overlaps the waiting games and no failed call crashes a match. (The
 serial baseline runs a prefix of the same seeded specs, so the ratio is

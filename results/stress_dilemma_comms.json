@@ -1,15 +1,15 @@
 {
   "game": "dilemma_comms",
-  "matches": 4,
-  "concurrency": 4,
-  "mean_latency_s": 0.01,
-  "error_rate": 0.0,
-  "serial_baseline_matches": 1,
-  "serial_matches_per_min": 28.1,
-  "concurrent_matches_per_min": 111.8,
-  "concurrency_speedup": 4.0,
-  "total_agent_calls": 128,
-  "calls_per_s": 59.6,
-  "simulated_api_errors_contained": 0,
-  "wall_s": 2.15
+  "matches": 60,
+  "concurrency": 30,
+  "mean_latency_s": 0.15,
+  "error_rate": 0.1,
+  "serial_baseline_matches": 4,
+  "serial_matches_per_min": 12.9,
+  "concurrent_matches_per_min": 289.2,
+  "concurrency_speedup": 22.5,
+  "total_agent_calls": 1932,
+  "calls_per_s": 155.2,
+  "simulated_api_errors_contained": 180,
+  "wall_s": 12.45
 }
